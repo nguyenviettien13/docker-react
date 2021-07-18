@@ -1,11 +1,10 @@
-sudo: required
-language: generic
+FROM node:alpine
+WORKDIR '/app'
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
-services:
-  - docker
-
-before_install:
-  - docker build -t stephengrider/docker-react -f Dockerfile.dev .
-
-script:
-  - docker run -e CI=true stephengrider/docker-react npm run test
+FROM nginx
+EXPOSE 80
+COPY --from=0 /app/build /usr/share/nginx/html
